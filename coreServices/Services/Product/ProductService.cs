@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using coreServices.DTOs.Product;
 using coreServices.Infrastructure.Base;
+using dbContext.VendingMachine;
+using dbContext.VendingMachine.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,22 +14,54 @@ namespace coreServices.Services.Product
     public class ProductService : BaseService, IProductService
     {
         private IMapper _mapper;
-        public ProductService(IMapper mapper) : base(mapper)
+        private readonly VendingMachineContext _dbContext;
+        public ProductService(VendingMachineContext dbContext ,IMapper mapper) : base(mapper)
         {
+            _dbContext = dbContext;
             _mapper = mapper; 
         }
 
-        public ProductDTO HelloProductService()
+        public IEnumerable<ProductDTO> GetAllAvailableProducts()
         {
-            ProductDTO productDTO = new ProductDTO()
-            {
-                ProductId = Guid.NewGuid(),
-                Cost = 2,
-                Name = "Chocolate",
-                SellerId = Guid.NewGuid()
-            };
+            var products = _dbContext.Products.Where(x=>x.AmountAvailable != 0).ToList();
+            return _mapper.Map<IEnumerable<ProductDTO>>(products);
+        }
 
-            return productDTO;
+        public ProductDTO AddProduct(ProductDTO product)
+        {
+            var cost = product.Cost * 100;
+            var existingProduct = _dbContext.Products.FirstOrDefault(x=> x.Name == product.Name && x.Cost == cost);
+            
+            if(existingProduct != null)
+            {
+                existingProduct.AmountAvailable++;
+                _dbContext.SaveChanges();
+                return _mapper.Map<ProductDTO>(existingProduct);
+            }
+
+            using var transaction = _dbContext.Database.BeginTransaction();
+            try
+            {
+                var newproduct = new Products()
+                {
+                    ProductId = new Guid(),
+                    Name = product.Name,
+                    Cost = cost,
+                    AmountAvailable = 1,
+                    SellerId = product.SellerId,
+                };
+                
+                _dbContext.Products.Add(newproduct);
+                _dbContext.SaveChanges();
+                transaction.Commit();
+                return _mapper.Map<ProductDTO>(newproduct);
+
+            }catch (Exception)
+            {
+                transaction.Rollback();
+                return null;
+            }
+
         }
     }
 }

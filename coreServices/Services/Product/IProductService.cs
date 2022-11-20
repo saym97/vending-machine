@@ -9,6 +9,7 @@ namespace coreServices.Services.Product
 {
     public interface IProductService
     {
-        ProductDTO HelloProductService();
+        ProductDTO AddProduct(ProductDTO product);
+        IEnumerable<ProductDTO> GetAllAvailableProducts();
     }
 }

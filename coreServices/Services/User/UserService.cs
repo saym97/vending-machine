@@ -134,5 +134,30 @@ namespace coreServices.Services.User
                 Expires = expires
             };
         }
+
+        public CurrentUserDTO GetAuthenticatedUser(ClaimsIdentity? identity)
+        {
+            if (identity == null)
+                return null;
+            var retval = new CurrentUserDTO();
+            IEnumerable<Claim>  claims = identity.Claims;
+            var guid = claims.FirstOrDefault(x => x.Type == ClaimTypes.PrimarySid)?.Value;
+            var  username = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var role = claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
+
+            if(guid != null)
+                retval.Id = new Guid(guid);
+
+            if (username != null)
+                retval.Username = username;
+
+            if (role.Equals("Seller"))
+                retval.Role = UserRoleEnum.Seller;
+
+            if (role.Equals("Buyer"))
+                retval.Role = UserRoleEnum.Buyer;
+
+            return retval;
+        }
     }
 }

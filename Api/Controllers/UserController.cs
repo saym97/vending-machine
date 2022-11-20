@@ -1,3 +1,4 @@
+using AutoMapper;
 using coreServices.DTOs.User.In;
 using coreServices.Services.User;
 using Microsoft.AspNetCore.Mvc;
@@ -7,18 +8,10 @@ namespace Api.Controllers
 {
     [ApiController]
     [Route("user")]
-    public class UserController : ControllerBase
+    public class UserController : BaseController
     {
 
-
-        private readonly ILogger<UserController> _logger;
-        private readonly IUserService _userService;
-
-        public UserController(ILogger<UserController> logger,IUserService userService)
-        {
-            _logger = logger;
-            _userService = userService;
-        }
+        public UserController(IMapper mapper, ILogger<UserController> logger,IUserService userService ): base(mapper,logger,userService){}
 
 
         [HttpPost("authenticate")]
