@@ -1,4 +1,6 @@
-﻿using coreServices.DTOs.User;
+﻿using coreServices.DTOs;
+using coreServices.DTOs.User;
+using coreServices.DTOs.User.In;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +11,7 @@ namespace coreServices.Services.User
 {
     public interface IUserService
     {
-        UserDTO HelloUserService();
+        DTOs.User.Out.LoginDTO Authenticate(DTOs.User.In.LoginDTO loginCredentials);
+        GenericResponse Register(SignupDTO signupCredentials);
     }
 }
