@@ -13,7 +13,10 @@ namespace coreServices.Services.User
     public interface IUserService
     {
         DTOs.User.Out.LoginDTO Authenticate(DTOs.User.In.LoginDTO loginCredentials);
+        GenericResponse Deposit(Guid userId, int amount);
         CurrentUserDTO GetAuthenticatedUser(ClaimsIdentity? identity);
         GenericResponse Register(SignupDTO signupCredentials);
+        GenericResponse UpdatePassword(Guid userId, string password);
+        GenericResponse UpdateUsername(Guid userId, string username);
     }
 }

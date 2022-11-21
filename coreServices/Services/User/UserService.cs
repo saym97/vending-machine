@@ -100,6 +100,71 @@ namespace coreServices.Services.User
 
             return retval;
         }
+
+
+        public GenericResponse Deposit(Guid userId, int amount)
+        {
+            var retval = new GenericResponse()
+            {
+                Success = false,
+                Message = "Error occured while depositing"
+            };
+            var user = _dbContext.Users.FirstOrDefault(x => x.UserId.Equals(userId));
+            if (user == null)
+                return retval;
+
+            user.Deposit += amount;
+            _dbContext.SaveChanges();
+            retval.Success = true;
+            retval.Message = $"Deposit successful, you current balance is {user.Deposit}";
+            return retval;
+        }
+        public GenericResponse UpdatePassword(Guid userId,string password)
+        {
+            var retval = new GenericResponse()
+            {
+                Success = false,
+                Message = "Error occured while updating the password, try again"
+            };
+
+            var user = _dbContext.Users.FirstOrDefault(x=>x.UserId.Equals(userId));
+            if(user == null)
+                return retval;
+
+            user.Password = password;
+            _dbContext.SaveChanges();
+            retval.Success = true;
+            retval.Message = $"Successfully change the password for user {user.Username}";
+            return retval;
+        }
+
+        public GenericResponse UpdateUsername(Guid userId, string username)
+        {
+            var retval = new GenericResponse()
+            {
+                Success = false,
+                Message = "Error occured while updating the username, try again"
+            };
+
+            var UserExistAlready = _dbContext.Users.Any(x => x.Username == username);
+            if (UserExistAlready)
+            {
+                retval.Message = $"The username {username} is already taken";
+                return retval;
+            }
+
+            var user = _dbContext.Users.FirstOrDefault(x => x.UserId.Equals(userId));
+            if (user == null)
+                return retval;
+
+            user.Username = username;
+            _dbContext.SaveChanges();
+            retval.Success = true;
+            retval.Message = $"Successfully change the username for user {user.Username}";
+            return retval;
+        }
+
+
         private JwToken GenerateJwToken(Users user)
         {
             if (user == null)
