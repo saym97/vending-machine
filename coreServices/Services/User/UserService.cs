@@ -22,6 +22,7 @@ namespace coreServices.Services.User
         private readonly IMapper _mapper;
         private readonly VendingMachineContext _dbContext;
         private IConfiguration _configuration;
+        private List<int> coinsAllowed = new List<int>() { 5, 10, 20, 50, 100 };
         public UserService(VendingMachineContext dbContext, IMapper mapper, IConfiguration configuration) : base(mapper)
         {
             _dbContext = dbContext;
@@ -95,7 +96,9 @@ namespace coreServices.Services.User
 
             retval.Username = user.Username;
             retval.Role = user.Role;
+            retval.Deposit = user.Deposit;
             retval.Success = true;
+            retval.Message = "Logged In successfully";
             retval.JwToken = GenerateJwToken(user);
 
             return retval;
@@ -109,6 +112,13 @@ namespace coreServices.Services.User
                 Success = false,
                 Message = "Error occured while depositing"
             };
+
+            bool IsCoinAllowed = coinsAllowed.Any(x=> x == amount);
+            if (!IsCoinAllowed)
+            {
+                retval.Message = "You can only deposit the coins of 5, 10, 20, 50 and 100 cents";
+                return retval;
+            }
             var user = _dbContext.Users.FirstOrDefault(x => x.UserId.Equals(userId));
             if (user == null)
                 return retval;
@@ -119,6 +129,29 @@ namespace coreServices.Services.User
             retval.Message = $"Deposit successful, you current balance is {user.Deposit}";
             return retval;
         }
+
+        public GenericResponse Reset(Guid userId)
+        {
+            var retval = new GenericResponse()
+            {
+                Success = false,
+                Message = "Error occured while reseting the deposit amount"
+            };
+
+            var user = _dbContext.Users.FirstOrDefault(x => x.UserId.Equals(userId));
+
+            if (user == null)
+                return retval;
+
+            user.Deposit = 0;
+            _dbContext.SaveChanges();
+
+            retval.Success = true;
+            retval.Message = "Your deposits were reset successfully.";
+
+            return retval;
+        }
+
         public GenericResponse UpdatePassword(Guid userId,string password)
         {
             var retval = new GenericResponse()

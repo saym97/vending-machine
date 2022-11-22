@@ -101,7 +101,7 @@ namespace Api.Controllers
             if (loggedUser == null)
                 return Unauthorized("Token is invalid");
 
-            if (amount % 5 != 0)
+            if (amount == 0)
                 return BadRequest("You can only deposit the coins of 5, 10, 20, 50 and 100 cents");
 
             var result = _userService.Deposit(loggedUser.Id, amount);
@@ -111,5 +111,25 @@ namespace Api.Controllers
 
             return NotFound(result.Message);
         }
+
+        [HttpPatch("reset")]
+        [Authorize(Roles = "Buyer")]
+        public IActionResult ResetDeposit()
+        {
+            var loggedUser = GetLoggedUser();
+            if (loggedUser == null)
+                return Unauthorized("Token is invalid");
+
+
+
+            var result = _userService.Reset(loggedUser.Id);
+
+            if (result.Success)
+                return Ok(result.Message);
+
+            return NotFound(result.Message);
+        }
+
+
     }
 }

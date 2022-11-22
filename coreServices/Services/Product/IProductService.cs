@@ -1,4 +1,5 @@
-﻿using coreServices.DTOs.Product;
+﻿using coreServices.DTOs;
+using coreServices.DTOs.Product;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,9 @@ namespace coreServices.Services.Product
     {
         ProductDTO AddProduct(ProductDTO product);
         IEnumerable<ProductDTO> GetAllAvailableProducts();
+        ProductDTO UpdatePrice(UpdateProductDTO productDto);
+        ProductDTO UpdateProductName(UpdateProductDTO productDto);
+        GenericResponse DeleteProduct(Guid productId);
+        ProductDTO UpdateQuantity(UpdateProductDTO productDto);
     }
 }

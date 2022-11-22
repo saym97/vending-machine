@@ -16,6 +16,7 @@ namespace coreServices.Services.User
         GenericResponse Deposit(Guid userId, int amount);
         CurrentUserDTO GetAuthenticatedUser(ClaimsIdentity? identity);
         GenericResponse Register(SignupDTO signupCredentials);
+        GenericResponse Reset(Guid userId);
         GenericResponse UpdatePassword(Guid userId, string password);
         GenericResponse UpdateUsername(Guid userId, string username);
     }

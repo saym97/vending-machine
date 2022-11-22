@@ -48,5 +48,86 @@ namespace Api.Controllers
                 return NotFound("couldn't add the product");
             return Ok(result);
         }
+
+
+        //TODO: Update Price
+        [HttpPatch("update-price")]
+        [Authorize(Roles = "Seller")]
+        public IActionResult UpdateProductPrice(UpdateProductDTO product)
+        {
+            if(product == null  || product.Cost == 0)
+                return BadRequest("Invalid product data");
+            try
+            {
+                ProductDTO result = _productService.UpdatePrice(product);
+                if (result == null)
+                    return NotFound("Product couldn't not be found");
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+        //TODO: Update Quatity
+        [HttpPatch("update-quantity")]
+        [Authorize(Roles = "Seller")]
+        public IActionResult UpdateProductQuantity(UpdateProductDTO product)
+        {
+            if (product == null)
+                return BadRequest("Invalid product data");
+
+            ProductDTO result = _productService.UpdateQuantity(product);
+            if (result == null)
+                return NotFound("Product couldn't not be found");
+
+            return Ok(result);
+        }
+
+        //TODO: Update Name
+        [HttpPatch("update-name")]
+        [Authorize(Roles = "Seller")]
+        public IActionResult UpdateProductName(UpdateProductDTO product)
+        {
+            if (product == null || product.Name.IsNullOrEmpty())
+                return BadRequest("Invalid product data");
+            try
+            {
+                ProductDTO result = _productService.UpdateProductName(product);
+                if (result == null)
+                    return NotFound("Product couldn't not be found");
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+
+        //TODO: DeleteProduct
+        [HttpDelete("delete")]
+        [Authorize(Roles = "Seller")]
+        public IActionResult DeleteProduct([FromBody] string productId)
+        {
+            if (productId.IsNullOrEmpty())
+                return BadRequest("product id cannot be empty");
+
+            Guid Id;
+            bool IsValidId = Guid.TryParse(productId,out Id);
+            if (!IsValidId)
+                return BadRequest("The product id is not valid");
+
+            var result = _productService.DeleteProduct(Id);
+
+            if (result.Success)
+                return Ok(result.Message);
+
+            return BadRequest(result.Message);
+        }
     }
-}
+    }
