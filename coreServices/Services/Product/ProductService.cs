@@ -31,8 +31,7 @@ namespace coreServices.Services.Product
 
         public ProductDTO AddProduct(ProductDTO product)
         {
-            var cost = product.Cost * 100;
-            var existingProduct = _dbContext.Products.FirstOrDefault(x=> x.Name == product.Name && x.Cost == cost);
+            var existingProduct = _dbContext.Products.FirstOrDefault(x=> x.Name == product.Name && x.Cost == product.Cost);
             
             if(existingProduct != null)
             {
@@ -48,7 +47,7 @@ namespace coreServices.Services.Product
                 {
                     ProductId = new Guid(),
                     Name = product.Name,
-                    Cost = cost,
+                    Cost = product.Cost,
                     AmountAvailable = 1,
                     SellerId = product.SellerId,
                 };
@@ -142,6 +141,85 @@ namespace coreServices.Services.Product
             _dbContext.SaveChanges();
 
             return _mapper.Map<ProductDTO>(product);
+        }
+
+        public DTOs.Product.Out.BuyProductDTO BuyProduct(Guid userId, DTOs.Product.In.BuyProductDTO productDto)
+        {
+            try
+            {
+                //Check if user is good
+                var user = _dbContext.Users.FirstOrDefault(x => x.UserId == userId);
+                if (user == null)
+                    throw new Exception("Error occured while processing the purchase. Try again.");
+                
+                //check if product is good
+                var product = _dbContext.Products.FirstOrDefault(x => x.ProductId == productDto.Id);
+                if (product == null)
+                    throw new Exception("Product couldn't be found. Try again");
+
+                //check if user has enough money
+                int totalCost = product.Cost * productDto.Amount;
+                bool UserHaveMoney = user.Deposit >= totalCost;
+                if (!UserHaveMoney)
+                    throw new Exception($"Sorry, you need to have {totalCost} cents to buy these products. You only have {user.Deposit} cents");
+                
+                //check if product is enough
+                bool isProductAvailable = product.AmountAvailable > productDto.Amount;
+                if (!isProductAvailable)
+                    throw new Exception($"Sorry there are not enough {product.Name} in stock. Currently, there are only {product.AmountAvailable} {product.Name} available");
+                
+
+                //Decrease product by amount
+                product.AmountAvailable -= productDto.Amount;
+                //Calculate amount of change
+                int change = user.Deposit - totalCost;
+                //convert the change into coins
+                List<int> coins = (change > 0) ? GetChangeCoins(change) : null ;
+                user.Deposit = 0;
+                _dbContext.SaveChanges();
+
+                DTOs.Product.Out.BuyProductDTO buyProductDTO = new DTOs.Product.Out.BuyProductDTO()
+                {
+                    ProductName = product.Name,
+                    Amount = productDto.Amount,
+                    TotalCost = totalCost,
+                    Change = coins
+                };
+
+                return buyProductDTO; 
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private List<int> GetChangeCoins(int change)
+        {
+            List<int> changeCoins = new List<int>();
+            while(change > 0)
+            {
+                if (change % 5 != 0)
+                    break;
+                int coin = 0;
+
+                if (change - 100 >= 0)
+                    coin = 100;
+                else if (change - 50 >= 0)
+                    coin = 50;
+                else if (change - 20 >= 0)
+                    coin = 20;
+                else if (change - 10 >= 0)
+                    coin = 10;
+                else if (change - 5 >= 0)
+                    coin = 5;
+
+                change -= coin;
+                changeCoins.Add(coin);
+            }
+            return changeCoins;
         }
     }
 }

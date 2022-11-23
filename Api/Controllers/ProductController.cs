@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using coreServices.DTOs.Product;
+using coreServices.DTOs.Product.In;
 using coreServices.Services.Product;
 using coreServices.Services.User;
 using Microsoft.AspNetCore.Authorization;
@@ -26,6 +27,29 @@ namespace Api.Controllers
             return _productService.GetAllAvailableProducts();
         }
 
+        [HttpPost("buy")]
+        [Authorize(Roles = "Buyer")]
+        public IActionResult BuyProduct([FromBody] BuyProductDTO product)
+        {
+            var currentUser = GetLoggedUser();
+            if (currentUser == null)
+                return Unauthorized("user token is invalid");
+
+            if(product == null || product.Amount <= 0)
+                return BadRequest("invalid product data");
+            try
+            {
+                var result = _productService.BuyProduct(currentUser.Id, product);
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            
+        }
 
         [HttpPost("create")]
         [Authorize(Roles = "Seller")]
@@ -38,8 +62,8 @@ namespace Api.Controllers
             if (product == null || product.Name.IsNullOrEmpty())
                 return BadRequest("product data is invalid");
 
-            if ((product.Cost * 100) % 5 != 0)
-                return BadRequest("Invalid price: The Machine only accepts 5, 10, 20,50,100 cent coin, so please set the cost according to it.");
+            if (product.Cost <= 0 || product.Cost % 5 != 0)
+                return BadRequest("Invalid price: The Machine only accepts 5, 10, 20, 50, 100 cent coin, so please set the cost according to it.");
             
             product.SellerId = currentUser.Id;
             var result = _productService.AddProduct(product);
