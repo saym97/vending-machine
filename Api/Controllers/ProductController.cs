@@ -74,7 +74,7 @@ namespace Api.Controllers
         }
 
 
-        //TODO: Update Price
+
         [HttpPatch("update-price")]
         [Authorize(Roles = "Seller")]
         public IActionResult UpdateProductPrice(UpdateProductDTO product)
@@ -95,7 +95,8 @@ namespace Api.Controllers
             }
 
         }
-        //TODO: Update Quatity
+
+
         [HttpPatch("update-quantity")]
         [Authorize(Roles = "Seller")]
         public IActionResult UpdateProductQuantity(UpdateProductDTO product)
@@ -110,7 +111,7 @@ namespace Api.Controllers
             return Ok(result);
         }
 
-        //TODO: Update Name
+
         [HttpPatch("update-name")]
         [Authorize(Roles = "Seller")]
         public IActionResult UpdateProductName(UpdateProductDTO product)
@@ -133,7 +134,7 @@ namespace Api.Controllers
         }
 
 
-        //TODO: DeleteProduct
+
         [HttpDelete("delete")]
         [Authorize(Roles = "Seller")]
         public IActionResult DeleteProduct([FromBody] string productId)

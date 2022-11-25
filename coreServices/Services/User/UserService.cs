@@ -22,13 +22,11 @@ namespace coreServices.Services.User
     {
         private readonly IMapper _mapper;
         private readonly VendingMachineContext _dbContext;
-        private IConfiguration _configuration;
         private List<int> coinsAllowed = new List<int>() { 5, 10, 20, 50, 100 };
-        public UserService(VendingMachineContext dbContext, IMapper mapper, IConfiguration configuration) : base(mapper)
+        public UserService(VendingMachineContext dbContext, IMapper mapper) : base(mapper)
         {
             _dbContext = dbContext;
             _mapper = mapper;
-            _configuration = configuration;
         }
 
 
@@ -214,7 +212,7 @@ namespace coreServices.Services.User
             if (user == null)
                 return null;
 
-            var secret = Encoding.ASCII.GetBytes(_configuration.GetSection("JWTSecretKey").Value);
+            var secret = Encoding.ASCII.GetBytes("cfe71d5dbe0144a4a841fae7877fb511");
             var credentials = new SigningCredentials(new SymmetricSecurityKey(secret), SecurityAlgorithms.HmacSha256Signature);
             var expires = DateTime.UtcNow.AddHours(2);
             var claims = new List<Claim>()
