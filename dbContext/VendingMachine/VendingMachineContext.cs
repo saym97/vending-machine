@@ -53,12 +53,15 @@ public partial class VendingMachineContext : DbContext
                 .HasDefaultValueSql("(newid())")
                 .HasColumnName("userId");
             entity.Property(e => e.Deposit).HasColumnName("deposit");
-            entity.Property(e => e.Password)
-                .IsRequired()
+            entity.Property(e => e.Hash)
                 .HasMaxLength(100)
                 .IsUnicode(false)
-                .HasColumnName("password");
+                .HasColumnName("hash");
             entity.Property(e => e.Role).HasColumnName("role");
+            entity.Property(e => e.Salt)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("salt");
             entity.Property(e => e.Username)
                 .IsRequired()
                 .HasMaxLength(50)

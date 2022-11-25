@@ -3,6 +3,7 @@ using coreServices.DTOs;
 using coreServices.DTOs.User;
 using coreServices.DTOs.User.In;
 using coreServices.Enums;
+using coreServices.Helper;
 using coreServices.Infrastructure.Base;
 using dbContext.VendingMachine;
 using dbContext.VendingMachine.Entities;
@@ -49,12 +50,19 @@ namespace coreServices.Services.User
                     throw new Exception("user exists already");
                 }
 
+                string salt;
+                string hash;
+
+                PasswordHelper.GenerateHash(signupCredentials.Password, out salt, out hash);
+
                 var user = new Users()
                 {
                     Username = signupCredentials.Username,
-                    Password = signupCredentials.Password,
+                    Salt = salt,
+                    Hash = hash,
                     Role = signupCredentials.Role,
                 };
+
                 _dbContext.Users.Add(user);
                 _dbContext.SaveChanges();
                 transaction.Commit();
@@ -86,7 +94,7 @@ namespace coreServices.Services.User
                 return retval;
             }
             
-            bool isPasswordCorrect = user.Password == loginCredentials.Password;
+            bool isPasswordCorrect = PasswordHelper.VerifyPasswordHash(loginCredentials.Password,user.Salt,user.Hash);
 
             if (!isPasswordCorrect)
             {
@@ -164,7 +172,10 @@ namespace coreServices.Services.User
             if(user == null)
                 return retval;
 
-            user.Password = password;
+            string salt, hash;
+            PasswordHelper.GenerateHash(password, out salt, out hash);
+            user.Salt = salt;
+            user.Hash = hash;
             _dbContext.SaveChanges();
             retval.Success = true;
             retval.Message = $"Successfully change the password for user {user.Username}";

@@ -11,11 +11,13 @@ public partial class Users
 
     public string Username { get; set; }
 
-    public string Password { get; set; }
-
     public int Deposit { get; set; }
 
     public byte Role { get; set; }
+
+    public string Salt { get; set; }
+
+    public string Hash { get; set; }
 
     public virtual ICollection<Products> Products { get; } = new List<Products>();
 }

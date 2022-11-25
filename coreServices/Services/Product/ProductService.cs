@@ -164,7 +164,7 @@ namespace coreServices.Services.Product
                     throw new Exception($"Sorry, you need to have {totalCost} cents to buy these products. You only have {user.Deposit} cents");
                 
                 //check if product is enough
-                bool isProductAvailable = product.AmountAvailable > productDto.Amount;
+                bool isProductAvailable = (product.AmountAvailable > 0 && product.AmountAvailable >= productDto.Amount);
                 if (!isProductAvailable)
                     throw new Exception($"Sorry there are not enough {product.Name} in stock. Currently, there are only {product.AmountAvailable} {product.Name} available");
                 
