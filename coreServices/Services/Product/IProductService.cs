@@ -13,10 +13,10 @@ namespace coreServices.Services.Product
     {
         ProductDTO AddProduct(ProductDTO product);
         IEnumerable<ProductDTO> GetAllAvailableProducts();
-        ProductDTO UpdatePrice(UpdateProductDTO productDto);
-        ProductDTO UpdateProductName(UpdateProductDTO productDto);
-        GenericResponse DeleteProduct(Guid productId);
-        ProductDTO UpdateQuantity(UpdateProductDTO productDto);
+        ProductDTO UpdatePrice(Guid userId, UpdateProductDTO productDto);
+        ProductDTO UpdateProductName(Guid userId, UpdateProductDTO productDto);
+        GenericResponse DeleteProduct(Guid userId, Guid productId);
+        ProductDTO UpdateQuantity(Guid userId, UpdateProductDTO productDto);
         DTOs.Product.Out.BuyProductDTO BuyProduct(Guid userId, DTOs.Product.In.BuyProductDTO product);
     }
 }

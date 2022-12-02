@@ -79,11 +79,15 @@ namespace Api.Controllers
         [Authorize(Roles = "Seller")]
         public IActionResult UpdateProductPrice(UpdateProductDTO product)
         {
-            if(product == null  || product.Cost == 0)
+            var currentUser = GetLoggedUser();
+            if (currentUser == null)
+                return Unauthorized("user token is invalid");
+
+            if (product == null  || product.Cost == 0)
                 return BadRequest("Invalid product data");
             try
             {
-                ProductDTO result = _productService.UpdatePrice(product);
+                ProductDTO result = _productService.UpdatePrice(currentUser.Id,product);
                 if (result == null)
                     return NotFound("Product couldn't not be found");
 
@@ -101,10 +105,14 @@ namespace Api.Controllers
         [Authorize(Roles = "Seller")]
         public IActionResult UpdateProductQuantity(UpdateProductDTO product)
         {
+            var currentUser = GetLoggedUser();
+            if (currentUser == null)
+                return Unauthorized("user token is invalid");
+
             if (product == null)
                 return BadRequest("Invalid product data");
 
-            ProductDTO result = _productService.UpdateQuantity(product);
+            ProductDTO result = _productService.UpdateQuantity(currentUser.Id, product);
             if (result == null)
                 return NotFound("Product couldn't not be found");
 
@@ -116,11 +124,15 @@ namespace Api.Controllers
         [Authorize(Roles = "Seller")]
         public IActionResult UpdateProductName(UpdateProductDTO product)
         {
+            var currentUser = GetLoggedUser();
+            if (currentUser == null)
+                return Unauthorized("user token is invalid");
+
             if (product == null || product.Name.IsNullOrEmpty())
                 return BadRequest("Invalid product data");
             try
             {
-                ProductDTO result = _productService.UpdateProductName(product);
+                ProductDTO result = _productService.UpdateProductName(currentUser.Id, product);
                 if (result == null)
                     return NotFound("Product couldn't not be found");
 
@@ -139,6 +151,10 @@ namespace Api.Controllers
         [Authorize(Roles = "Seller")]
         public IActionResult DeleteProduct([FromBody] string productId)
         {
+            var currentUser = GetLoggedUser();
+            if (currentUser == null)
+                return Unauthorized("user token is invalid");
+
             if (productId.IsNullOrEmpty())
                 return BadRequest("product id cannot be empty");
 
@@ -147,7 +163,7 @@ namespace Api.Controllers
             if (!IsValidId)
                 return BadRequest("The product id is not valid");
 
-            var result = _productService.DeleteProduct(Id);
+            var result = _productService.DeleteProduct(currentUser.Id, Id);
 
             if (result.Success)
                 return Ok(result.Message);

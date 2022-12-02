@@ -65,14 +65,14 @@ namespace coreServices.Services.Product
 
         }
 
-        public ProductDTO UpdatePrice(UpdateProductDTO productDto)
+        public ProductDTO UpdatePrice(Guid userId, UpdateProductDTO productDto)
         {
-            var product = _dbContext.Products.FirstOrDefault(x => x.ProductId == productDto.ProductId);
+            var product = _dbContext.Products.FirstOrDefault(x => x.ProductId == productDto.ProductId && x.SellerId.Equals(userId));
             if (product == null)
                 return null;
             try
             {
-                bool ProductExistAlready = _dbContext.Products.Any(x => x.Name == product.Name && x.Cost == productDto.Cost);
+                bool ProductExistAlready = _dbContext.Products.Any(x => x.Name == product.Name && x.Cost == productDto.Cost && x.SellerId.Equals(userId));
                 if (ProductExistAlready)
                     throw new Exception("You already have added a product with the same price and name.");
                 product.Cost = productDto.Cost.Value;
@@ -85,14 +85,14 @@ namespace coreServices.Services.Product
             
         }
 
-        public ProductDTO UpdateProductName(UpdateProductDTO productDto)
+        public ProductDTO UpdateProductName(Guid userId, UpdateProductDTO productDto)
         {
-            var product = _dbContext.Products.FirstOrDefault(x => x.ProductId == productDto.ProductId);
+            var product = _dbContext.Products.FirstOrDefault(x => x.ProductId == productDto.ProductId && x.SellerId.Equals(userId));
             if (product == null)
                 return null;
             try
             {
-                bool ProductExistAlready = _dbContext.Products.Any(x => x.Name == productDto.Name && x.Cost == product.Cost);
+                bool ProductExistAlready = _dbContext.Products.Any(x => x.Name == productDto.Name && x.Cost == product.Cost && x.SellerId.Equals(userId));
                 if (ProductExistAlready)
                     throw new Exception("You already have added a product with the same name and price.");
                
@@ -108,14 +108,14 @@ namespace coreServices.Services.Product
 
         }
 
-        public GenericResponse DeleteProduct(Guid productId)
+        public GenericResponse DeleteProduct(Guid userId, Guid productId)
         {
             var retval = new GenericResponse()
             {
                 Success = false,
                 Message = "Error occured while deleting the product."
             };
-            var product = _dbContext.Products.FirstOrDefault(x => x.ProductId == productId);
+            var product = _dbContext.Products.FirstOrDefault(x => x.ProductId == productId && x.SellerId.Equals(userId));
             if (product == null)
             {
                 retval.Message = "Couldn't find the product";
@@ -131,9 +131,9 @@ namespace coreServices.Services.Product
             return retval;
         }
 
-        public ProductDTO UpdateQuantity(UpdateProductDTO productDto)
+        public ProductDTO UpdateQuantity(Guid userId, UpdateProductDTO productDto)
         {
-            var product = _dbContext.Products.FirstOrDefault(x => x.ProductId == productDto.ProductId);
+            var product = _dbContext.Products.FirstOrDefault(x => x.ProductId == productDto.ProductId && x.SellerId.Equals(userId));
             if (product == null)
                 return null;
             
